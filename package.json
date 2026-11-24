@@ -1,6 +1,6 @@
 {
   "name": "vitepress-next-prev-nav",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/truonghoangnguyen/vitepress-next-prev-nav.git"
@@ -47,7 +47,7 @@
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "vitepress": "^1.6.4",
-    "vue": "^3.5.41"
+    "vue": "^3.5.46"
   },
   "engines": {
     "node": ">=18"

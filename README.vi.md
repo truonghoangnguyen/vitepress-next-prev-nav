@@ -4,7 +4,7 @@ Plugin tự động tạo và hiển thị thanh điều hướng **Bài trướ
 
 ✨ **Đặc điểm nổi bật:**
 - **Không cần tạo Theme/Layout custom**: Tự động tương thích 100% với giao diện mặc định (Default Theme) của VitePress thông qua `frontmatter.prev` và `frontmatter.next`.
-- **Hỗ trợ CLI `gennav`**: Tự động quét thư mục `.md` và tạo file danh sách điều hướng.
+- **Hỗ trợ CLI `gennav`**: Tự động quét thư mục `.md` và tạo file danh sách điều hướng (`nav.json`) cùng file mục lục (`mucluc.md`).
 - **Hỗ trợ nhiều danh sách nav**: Dễ dàng phân chia nav cho từng mục/chủ đề khác nhau.
 
 ---
@@ -50,15 +50,38 @@ export default defineConfig({
 
 ## 🛠 Tự động tạo danh sách bài viết bằng CLI `gennav`
 
-Thay vì tự gõ danh sách bằng tay, bạn có thể dùng CLI `gennav` để quét tự động các file `.md` trong thư mục:
+Thay vì tự gõ danh sách bằng tay, bạn có thể dùng CLI `gennav` để quét tự động các file `.md` trong thư mục. Lệnh sẽ tự động sinh ra cả `nav.json` và file mục lục `mucluc.md`:
 
 ```bash
-# Quét thư mục docs/feyman/ và tự động tạo file nav.json trong thư mục đó (docs/feyman/nav.json)
+# Quét thư mục docs/feyman/ và tự động tạo cả nav.json và mucluc.md (docs/feyman/nav.json, docs/feyman/mucluc.md)
 npx gennav docs/feyman/
+
+# Tùy chỉnh đường dẫn xuất file (nếu muốn):
+npx gennav docs/feyman/ -o docs/feyman/nav.json --toc docs/feyman/mucluc.md
 
 # Tương tự cho thư mục khác:
 npx gennav docs/math/
 ```
+
+### 📋 Vai trò của file `mucluc.md` (Mục lục)
+
+`mucluc.md` đóng vai trò là danh sách toàn bộ các trang trong tài liệu hoặc cuốn sách của bạn, tương tự như trang Mục lục (Table of Contents) trong các cuốn sách in truyền thống:
+
+```markdown
+- [1. PHẨM GIÁC NGỘ](/kinhtieubo/pali-vi/ud/vagga1-bodhivagga.md)
+- [2. PHẨM MUCALINDA](/kinhtieubo/pali-vi/ud/vagga2-mucalindavagga.md)
+- [3. PHẨM NANDA](/kinhtieubo/pali-vi/ud/vagga3-nandavagga.md)
+```
+
+Bạn có thể dễ dàng nhúng trực tiếp file này vào trang bìa hoặc `index.md` bằng cú pháp include có sẵn của VitePress:
+
+```markdown
+# My Book
+
+<!--@include: ./meta/mucluc.md-->
+```
+
+Cách này giúp trang mục lục luôn tự động đồng bộ theo cấu trúc tài liệu mà không cần phải cập nhật liên kết bằng tay.
 
 Sau đó import các file `nav.json` vào `.vitepress/config.ts`:
 

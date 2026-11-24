@@ -4,7 +4,7 @@ A VitePress plugin that automatically generates and displays **Previous / Next (
 
 ✨ **Key Features:**
 - **Zero theme customization required**: 100% compatible out-of-the-box with the default VitePress theme via standard `frontmatter.prev` and `frontmatter.next`.
-- **Built-in CLI (`gennav`)**: Automatically scans `.md` files in a target directory and generates navigation list JSON files.
+- **Built-in CLI (`gennav`)**: Automatically scans `.md` files in a target directory and generates navigation JSON files (`nav.json`) as well as a markdown table of contents (`mucluc.md`).
 - **Multi-nav list support**: Easily configure separate navigation flows for different document categories or topics.
 
 ---
@@ -50,15 +50,35 @@ export default defineConfig({
 
 ## 🛠 Auto-generate Navigation Lists with `gennav` CLI
 
-Instead of manually constructing navigation arrays, use the `gennav` CLI tool to scan `.md` files in a folder automatically:
+Instead of manually constructing navigation arrays, use the `gennav` CLI tool to scan `.md` files in a folder automatically. It creates both `nav.json` and a markdown table of contents `mucluc.md`:
 
 ```bash
-# Scan docs/feynman/ directory and generate docs/feynman/nav.json
+# Scan docs/feynman/ directory and generate docs/feynman/nav.json & docs/feynman/mucluc.md
 npx gennav docs/feynman/
 
-# Scan another directory:
-npx gennav docs/math/
+# Optionally specify custom output paths:
+npx gennav docs/feynman/ -o docs/feynman/nav.json --toc docs/feynman/mucluc.md
+
 ```
+
+### 📋 Role of `mucluc.md` (Table of Contents)
+
+`mucluc.md` serves as a structured listing of all pages in your documentation collection or book—functioning just like the Table of Contents in a printed book:
+
+```markdown
+- [1. Chapter Title](/docs/feynman/01-chapter.md)
+- [2. Next Chapter](/docs/feynman/02-chapter.md)
+```
+
+You can effortlessly embed this table of contents into your book's landing page or `index.md` using VitePress's native Markdown file inclusion:
+
+```markdown
+# My Book
+
+<!--@include: ./meta/mucluc.md-->
+```
+
+This keeps your book's table of contents always in sync with your document structure without having to maintain links manually.
 
 Then import the generated `nav.json` files into `.vitepress/config.ts`:
 
@@ -72,7 +92,7 @@ export default defineConfig({
   plugins: [
     // Pass multiple navigation lists as separate arguments:
     FilelistNav(feynmanNav, mathNav)
-    
+
     // ...or pass them inside an array: FilelistNav([feynmanNav, mathNav])
   ]
 })

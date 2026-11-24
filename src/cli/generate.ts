@@ -3,8 +3,10 @@ import path from 'node:path'
 import type { FilelistItem } from '../core/filelist-nav'
 
 export interface GenerateNavOptions {
-  /** File output, default '<folderPath>/nav.json' */
+  /** File output cho nav.json, default '<folderPath>/nav.json' */
   out?: string
+  /** File output cho mucluc.md, default '<folderPath>/mucluc.md' */
+  tocOut?: string
   /** Glob pattern lọc file, chưa dùng — để dành */
   pattern?: string
 }
@@ -54,6 +56,7 @@ function parseFrontmatterAndTitle(content: string, filename: string): { title: s
  * 3. Sắp xếp file theo order / tên file (natural sort)
  * 4. Build FilelistItem[] ({ text, link })
  * 5. Ghi kết quả ra file `out` (mặc định `<folderPath>/nav.json`)
+ * 6. Tạo file `mucluc.md` chứa danh sách link dạng `- [text](link)`
  *
  * @param folderPath - đường dẫn folder chứa docs, ví dụ "docs/"
  */
@@ -61,10 +64,15 @@ export async function generateNav(
   folderPath: string,
   options: GenerateNavOptions = {}
 ): Promise<FilelistItem[]> {
-  const { out = path.join(folderPath, 'nav.json') } = options
+  const {
+    out = path.join(folderPath, 'nav.json'),
+    tocOut = path.join(folderPath, 'mucluc.md'),
+  } = options
 
   const cwd = process.cwd()
   const absFolder = path.resolve(cwd, folderPath)
+  const absOut = path.resolve(cwd, out)
+  const absTocOut = path.resolve(cwd, tocOut)
 
   const entries = await readdir(absFolder, { recursive: true, withFileTypes: true })
 
@@ -77,6 +85,12 @@ export async function generateNav(
 
     const parentDir = entry.parentPath || (entry as any).path || absFolder
     const absPath = path.join(parentDir, entry.name)
+
+    // Bỏ qua file mucluc để tránh tự đưa chính nó vào danh sách điều hướng
+    if (absPath === absTocOut || entry.name === 'mucluc.md') {
+      continue
+    }
+
     const relPath = path.relative(cwd, absPath).replace(/\\/g, '/')
 
     try {
@@ -106,9 +120,12 @@ export async function generateNav(
     link: `/${f.relPath}`,
   }))
 
-  const absOut = path.resolve(cwd, out)
   await mkdir(path.dirname(absOut), { recursive: true })
   await writeFile(absOut, JSON.stringify(navItems, null, 2), 'utf-8')
+
+  const tocContent = navItems.map((item) => `- [${item.text}](${item.link})`).join('\n') + (navItems.length > 0 ? '\n' : '')
+  await mkdir(path.dirname(absTocOut), { recursive: true })
+  await writeFile(absTocOut, tocContent, 'utf-8')
 
   return navItems
 }
